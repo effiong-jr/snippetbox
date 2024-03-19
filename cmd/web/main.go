@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/effiong-jr/snippetbox/internal/models"
-
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/effiong-jr/snippetbox/internal/models"
 )
 
 type application struct {
@@ -29,8 +29,6 @@ func main() {
 		fmt.Fprintf(os.Stdout, "Unable to create connection pool: %v", err)
 		os.Exit(1)
 	}
-
-	defer dbPool.Close()
 
 	logInfo := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 

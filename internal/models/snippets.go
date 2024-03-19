@@ -1,9 +1,14 @@
 package models
 
 import (
+	"context"
+	"fmt"
+	"strconv"
+
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type Snippet struct {
@@ -21,8 +26,22 @@ type SnippetModel struct {
 }
 
 // This will insert a new snippet into the database
-func (m *SnippetModel) Insert(title string, content string, expires int) (int, error) {
-	return 0, nil
+func (m *SnippetModel) Insert(title string, content string, expires int) error {
+
+	stmt := `INSERT INTO snippets (title, content, created, expires) VALUES (
+		$1, $2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + $3::INTERVAL);`
+
+	expiresToString := strconv.Itoa(expires) + "DAYS"
+
+	commTag, err := m.DB.Exec(context.Background(), stmt, title, content, expiresToString)
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(commTag)
+
+	return nil
 }
 
 // This will return a specific snippet based on its id
