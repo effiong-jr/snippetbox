@@ -2,13 +2,15 @@ package models
 
 import (
 	"context"
+	"errors"
 	"fmt"
+
 	"strconv"
 
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type Snippet struct {
@@ -46,7 +48,27 @@ func (m *SnippetModel) Insert(title string, content string, expires int) error {
 
 // This will return a specific snippet based on its id
 func (m *SnippetModel) Get(id int) (*Snippet, error) {
-	return nil, nil
+
+	stmt := `SELECT id, title, content, created, expires FROM snippets WHERE id=$1`
+
+	row := m.DB.QueryRow(context.Background(), stmt, id)
+
+	// fmt.Println(row)
+
+	s := &Snippet{}
+	err := row.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrorNoRecord
+		} else {
+
+			fmt.Println("No row error", err)
+			return nil, err
+		}
+	}
+
+	return s, nil
 }
 
 // This will return the 10 most recently created snippets.
