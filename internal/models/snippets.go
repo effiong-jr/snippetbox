@@ -62,7 +62,6 @@ func (m *SnippetModel) Get(id int) (*Snippet, error) {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrorNoRecord
 		} else {
-
 			fmt.Println("No row error", err)
 			return nil, err
 		}
